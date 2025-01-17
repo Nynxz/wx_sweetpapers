@@ -5,6 +5,7 @@ import argparse
 import os
 import random
 import time
+import signal
 
 
 class bcolors:
@@ -19,8 +20,10 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
-def change_wallpaper(config):
+def change_wallpaper(config, profile):
     path = os.path.expandvars(config["defaults"].get("packs_location"))
+    if profile is not None:
+        path = os.path.join(path, profile)
 
     # Transitions
     t_type = config["defaults"].get("transition_type")
@@ -28,9 +31,10 @@ def change_wallpaper(config):
     t_step = config["defaults"].get("transition_step")
     t_fps = config["defaults"].get("transition_fps")
     fill_mode = config["defaults"].get("fill_mode")
-    directories = [d for d in os.listdir(
-        path) if os.path.isdir(os.path.join(path, d))]
+
+    directories = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
     print(directories)
+
     last_d = ""
     while True:
         if len(directories) > 1:
@@ -58,8 +62,7 @@ def change_wallpaper(config):
                     stderr=subprocess.PIPE,
                 )
                 print(
-                    f"{bcolors.OKGREEN}Swapped Screen {
-                        monitor} to {img} {bcolors.ENDC}"
+                    f"{bcolors.OKGREEN}Swapped Screen {monitor} to {img} {bcolors.ENDC}"
                 )
                 if result.stdout:
                     print("Output: ", result.stdout)
@@ -75,41 +78,72 @@ def change_wallpaper(config):
 
 
 def debug_startup(config_data):
-    for section, config in config_data.items():
-        if isinstance(config, dict):
-            print(f"\nSection: {section}")
-            for key, value in config.items():
-                print(f"{key} = {value}")
-        elif isinstance(config, list):
-            print(f"\nSection: {section}")
-            for item in config:
-                print(item)
+    if config_data["defaults"].get("debug"):
+        debug = config_data["defaults"].get("debug")
+        if debug:
+            for section, config in config_data.items():
+                if isinstance(config, dict):
+                    print(f"\nSection: {section}")
+                    for key, value in config.items():
+                        print(f"{key} = {value}")
+                elif isinstance(config, list):
+                    print(f"\nSection: {section}")
+                    for item in config:
+                        print(item)
 
 
-def main():
-    # Parse Arguments
+def is_process_running(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+
+
+def shutdown_already_running():
+    print(f"PID: {os.getpid()}")
+    pid_file = "/tmp/wx_sweetpapers.pid"
+    try:
+        with open(pid_file, "r") as f:
+            last_pid = int(f.read().strip())
+            print(f"Last PID: {last_pid}")
+            if is_process_running(last_pid):
+                print(
+                    f"{bcolors.FAIL}Killing already running process {last_pid}{
+                        bcolors.ENDC
+                    }"
+                )
+                os.kill(last_pid, signal.SIGTERM)
+    except (ProcessLookupError, FileNotFoundError, ValueError):
+        print(f"Creating PID file @ {pid_file}")
+
+    with open(pid_file, "w") as f:
+        f.write(str(os.getpid()))
+
+
+def load_config():
     parser = argparse.ArgumentParser(description="wx_sweetpapers")
-    parser.add_argument(
-        "-c", "--config", help="Path to the custom config file")
-
+    parser.add_argument("-c", "--config", help="Path to the custom config file")
+    parser.add_argument("-p", "--profile", help="Path to the wallpaper pack profile")
     args = parser.parse_args()
     if not args.config:
-        parser.error(
-            "Please provide the path to the config file using -c flag")
+        parser.error("Please provide the path to the config file using -c flag")
+    if not args.profile:
+        args.profile = None
 
     with open(args.config, "r") as config_file:
         try:
-            config_data = json.load(config_file)
+            return (json.load(config_file), args.profile)
         except json.JSONDecodeError as e:
             print(f"Error parsing Config File: {e}")
             exit()
 
-    if config_data["defaults"].get("debug"):
-        debug = config_data["defaults"].get("debug")
-        if debug:
-            debug_startup(config_data)
 
-    change_wallpaper(config_data)
+def main():
+    shutdown_already_running()
+    [config_data, profile] = load_config()
+    debug_startup(config_data)
+    change_wallpaper(config_data, profile)
 
 
 if __name__ == "__main__":
