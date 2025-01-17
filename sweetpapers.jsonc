@@ -2,28 +2,33 @@
   "screens": {
     "1": "DP-3",
     "2": "HDMI-A-1",
-    "3": "DP-2",
+    "3": "DP-2"
   },
   "screenX": {
     "1": {
       "output": "DP-3",
       "orientation": "horizontal",
-      "fill": true,
+      "fill": true
     },
     "2": {
       "output": "HDM-A-1",
       "orientation": "vertical",
-      "fill": false,
+      "fill": false
     },
     "3": {
       "output": "DP-2",
       "orientation": "vertical",
-      "fill": false,
-    },
+      "fill": false
+    }
   },
   "defaults": {
     "debug": true,
     "packs_location": "$HOME/Wallpapers/packs/",
-    "fill_mode": true,
-  },
+    "fill_mode": "crop",
+    "interval": 30,
+    "transition_type": "fade",
+    "transition_duration": 2,
+    "transition_step": 20,
+    "transition_fps": 255
+  }
 }
