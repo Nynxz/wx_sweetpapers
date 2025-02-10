@@ -6,6 +6,8 @@
   },
   "defaults": {
     "debug": true,
+    "mode": "ordered",
+    "sequence": "true",
     "packs_location": "$HOME/Wallpapers/packs/",
     "fill_mode": "crop",
     "interval": 30,
