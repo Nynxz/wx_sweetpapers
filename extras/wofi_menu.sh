@@ -5,7 +5,7 @@ BASE_DIR="$HOME/Wallpapers/packs/"
 process_name="swww-daemon"
 process_info=$(ps -eo pid,rss,comm | grep "$process_name" | grep -v "grep" | awk '{printf "%.2fMB %s\n", $2/1024, $3}')
 
-directories=$(find "$BASE_DIR" -mindepth 1 -maxdepth 1 -type d)
+directories=$(find "$BASE_DIR" -mindepth 1 -maxdepth 1 \( -type d -o -type l \))
 selected_dir=$(echo -e "$directories\n$process_info" | wofi --show dmenu --insensitive true --prompt "Select a Wallpaper Pack")
 
 if [[ "$selected_dir" == "$process_info" ]]; then
