@@ -100,7 +100,7 @@ picking random images each time
     },
   },
   "defaults": {
-    "random": false, //
+    "auto": false,
     "debug": true,
     "sequence": false,
     "packs_location": "~/Wallpapers/packs",
