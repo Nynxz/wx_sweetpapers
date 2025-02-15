@@ -1,16 +1,28 @@
 {
   "screens": {
-    "1": "DP-3",
-    "2": "HDMI-A-1",
-    "3": "DP-2"
+    "1": {
+      "name": "DP-3",
+      "orientation": "landscape"
+    },
+    "2": {
+      "name": "HDMI-A-1",
+      "orientation": "portrait"
+    },
+    "3": {
+      "name": "DP-2",
+      "orientation": "portrait"
+    }
   },
   "defaults": {
+    "auto": true,
     "debug": true,
-    "mode": "ordered",
-    "sequence": "true",
-    "packs_location": "$HOME/Wallpapers/packs/",
+    "sequence": false,
+    "packs_location": "~/Wallpapers/packs"
+  },
+  "transition": {
+    "next": "ordered",
     "fill_mode": "crop",
-    "interval": 30,
+    "interval": 5,
     "transition_type": "fade",
     "transition_duration": 2,
     "transition_step": 20,

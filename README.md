@@ -52,3 +52,84 @@ Allows for quick swapping between wallpaper packs
 ## TODO
 
 - [ ] Convert HTTP-Daemon to Go?
+
+## Settings
+
+### Arguments
+
+- `-c --config`: the configuration file to use
+- `-p --profile`: the actual 'pack' to use.
+
+`i.e.  sweetpapers.py -c sweetpapers.json -p Background1`
+Will swap between `Background1/Oceans` and `Background1/Mountains`
+picking random images each time
+
+```example
+
+- sweetpapers.jsonc
+- Wallpapers
+  |- Background1
+    |- Oceans
+      |- 1.jpg
+      |- 2.jpg
+    |- Mountains
+      |- 1.jpg
+      |- 2.jpg
+      |- 2_1.jpg
+
+```
+
+### Configuration
+
+#### Example Configuration
+
+```jsonc
+{
+  "screens": {
+    "1": {
+      "name": "DP-3",
+      "orientation": "landscape",
+    },
+    "2": {
+      "name": "HDMI-A-1",
+      "orientation": "portrait",
+    },
+    "3": {
+      "name": "DP-2",
+      "orientation": "portrait",
+    },
+  },
+  "defaults": {
+    "random": false, //
+    "debug": true,
+    "sequence": false,
+    "packs_location": "~/Wallpapers/packs",
+  },
+  "transition": {
+    "next": "ordered",
+    "fill_mode": "crop",
+    "interval": 5,
+    "transition_type": "fade",
+    "transition_duration": 2,
+    "transition_step": 20,
+    "transition_fps": 255,
+  },
+}
+```
+
+- `defaults.random`: whether naming schema is followed or not,
+  if true, will automatically paint portrait images to portrait screens and horizontal
+  to horizontal screens (based on `screens.[id].orientation`) otherwise will paint
+  images based on their path prefix id (_1_.jpg, _2_.jpg) to `screens.[id].name`
+
+- `defaults.sequence`: if true, will swap a single screen and wait for `transition.interval`
+  before swapping next if false, will swap all monitors at the same time, then wait
+  `transition.interval` before swapping all monitors again
+
+- `defaults.packs_location`: the root pack, Main loop iterates over
+  `defaults.packs_location/(--profile)` directories. See: [Arguments](#arguments)
+
+- `transition.next`: (random, ordered), random will randomly select a directory to
+  switch to each loop, ordered will go through alphabetically
+- `transition.interval`: amount of time (seconds) between switching
+- `transition.transition_*`: See: [man swww-daemon](https://github.com/LGFae/swww/blob/main/doc/swww-img.1.scd)
