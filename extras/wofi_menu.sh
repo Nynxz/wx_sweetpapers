@@ -20,9 +20,9 @@ selected_option=$(echo -e "$commands" | wofi --show dmenu --insensitive true --p
 if [[ "$selected_option" == "$process_info" ]] && [ -n "$process_info" ]; then
   pgrep "swww-daemon" | xargs kill
   # Get Updated Memory Usage
+  hyprctl dispatch exec swww-daemon
   new_process_info=$(ps -eo pid,rss,comm | grep "$process_name" | grep -v "grep" | awk '{printf "%.2fMB %s\n", $2/1024, $3}')
   notify-send "♻️ Restarting swww-daemon" "Before $process_info\nAfter $new_process_info"
-  hyprctl dispatch exec swww-daemon
 elif [[ "$selected_option" == "Kill swww-daemon" ]]; then
   notify-send "🔴 Killing swww-daemon"
   pkill 'swww-daemon'
