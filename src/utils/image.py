@@ -16,14 +16,13 @@ def get_directories(path):
     return directories
 
 
-def is_landscape(path):
-    # TODO : speed this up?
+def get_orientations(path):
     result = subprocess.run(
         ["extras/rst-orientation/target/release/rst-orientation", path],
         stdout=subprocess.PIPE,
         text=True,
     )
-    return "landscape" in result.stdout
+    return result.stdout.strip().split("\n")
 
 
 def get_images_from_path(img_path):
@@ -49,13 +48,10 @@ def get_pack_image_orientations(path, orientation_cache):
     if path not in orientation_cache:
         wx_log(f"Caching {path}", bcolors.WARNING)
         orientation_cache[path] = {"landscape": [], "portrait": []}
-        files = os.listdir(path)
-        for f in files:
-            img_path = os.path.join(path, f)
-            b_landscape = is_landscape(img_path)
-            orientation_cache[path]["landscape" if b_landscape else "portrait"].append(
-                img_path
-            )
+        orientations = get_orientations(path)
+        hm = [x.split(",") for x in orientations]
+        for img_path, b_landscape in hm:
+            orientation_cache[path][b_landscape].append(img_path)
         imgs = orientation_cache[path]
     else:
         wx_log(f"Got From Cache: {path}")
