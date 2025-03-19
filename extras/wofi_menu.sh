@@ -35,7 +35,11 @@ elif [ -d "$selected_option" ]; then
     process_info="Starting..."
     hyprctl dispatch exec swww-daemon
   fi
-  /home/user/.config/wx_sweetpapers/src/sweetpapers.py -c /home/user/.config/wx_sweetpapers/sweetpapers.jsonc -p "$selected_option" &
+  script_dir=$(dirname "${BASH_SOURCE[0]}")
+  cd "${script_dir}/.." || {
+    exit 1
+  }
+  src/sweetpapers.py -c sweetpapers.jsonc -p "$selected_option" &
   notify-send "🟢 $selected_option" "$process_info"
 else
   notify-send "❔No directory selected."

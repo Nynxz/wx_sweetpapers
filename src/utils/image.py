@@ -19,17 +19,11 @@ def get_directories(path):
 def is_landscape(path):
     # TODO : speed this up?
     result = subprocess.run(
-        ["exiftool", "-json", path], stdout=subprocess.PIPE, text=True
+        ["extras/rst-orientation/target/release/rst-orientation", path],
+        stdout=subprocess.PIPE,
+        text=True,
     )
-
-    # Parse the JSON output
-    metadata = json.loads(result.stdout)[0]
-
-    # Extract resolution
-    width = metadata.get("ImageWidth")
-    height = metadata.get("ImageHeight")
-    # height, width = iio.imread(path).shape[:2]
-    return height < width
+    return "landscape" in result.stdout
 
 
 def get_images_from_path(img_path):
